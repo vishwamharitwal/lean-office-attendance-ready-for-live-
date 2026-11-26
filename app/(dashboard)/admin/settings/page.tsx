@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, MapPin, Loader2, AlertTriangle, Save } from "lucide-react";
+import { Settings, MapPin, Loader2, AlertTriangle, Save, Crosshair } from "lucide-react";
 import { NeuCard, NeuCardHeader, NeuCardTitle, NeuCardContent } from "@/components/ui/neu-card";
 import { NeuButton } from "@/components/ui/neu-button";
 import { NeuBadge } from "@/components/ui/neu-badge";
@@ -18,13 +18,14 @@ interface LocationSettings {
 export default function AdminSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   // Location settings state
   const [locationSettings, setLocationSettings] = useState<LocationSettings>({
-    officeLat: 0,
-    officeLng: 0,
-    radiusMeters: 100,
+    officeLat: 26.9124,
+    officeLng: 75.7873,
+    radiusMeters: 500,
     strictGeofence: false,
   });
 
@@ -35,7 +36,7 @@ export default function AdminSettingsPage() {
         const response = await fetch("/api/settings/location");
         const data = await response.json();
 
-        if (data.success) {
+        if (data.success && data.data) {
           setLocationSettings(data.data);
         }
       } catch (error) {
@@ -47,6 +48,31 @@ export default function AdminSettingsPage() {
 
     fetchSettings();
   }, []);
+
+  // Detect current location
+  const handleDetectLocation = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setToast({ message: "Geolocation is not supported by your browser", type: "error" });
+      return;
+    }
+    setIsDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocationSettings((prev) => ({
+          ...prev,
+          officeLat: Number(pos.coords.latitude.toFixed(6)),
+          officeLng: Number(pos.coords.longitude.toFixed(6)),
+        }));
+        setIsDetecting(false);
+        setToast({ message: "GPS Location detected! Click 'Save Settings' to apply.", type: "success" });
+      },
+      (err) => {
+        setIsDetecting(false);
+        setToast({ message: `Could not detect location: ${err.message}`, type: "error" });
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
 
   // Save location settings
   const handleSaveLocationSettings = async () => {
@@ -61,7 +87,7 @@ export default function AdminSettingsPage() {
       const data = await response.json();
 
       if (data.success) {
-        setToast({ message: "Location settings saved successfully", type: "success" });
+        setToast({ message: "Location settings saved to database successfully", type: "success" });
       } else {
         setToast({ message: data.error || "Failed to save settings", type: "error" });
       }
@@ -98,7 +124,7 @@ export default function AdminSettingsPage() {
           System Settings
         </h1>
         <p className="text-[var(--neu-text-secondary)]">
-          Configure geolocation, email, and other system preferences
+          Configure geolocation, geofencing, and attendance verification rules
         </p>
       </div>
 
@@ -115,18 +141,32 @@ export default function AdminSettingsPage() {
             {/* Info Banner */}
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5" />
+                <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-blue-900">Geofence Configuration</p>
                   <p className="text-sm text-blue-700">
-                    Set your office location and radius to validate employee check-ins.
-                    Employees outside this radius will be marked as &quot;Out of Office&quot;.
+                    Set your office coordinates and allowed radius. When an employee checks in, their GPS location is validated against this office position.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Office Coordinates */}
+            {/* Office Coordinates Header + Auto Detect */}
+            <div className="flex items-center justify-between pb-1">
+              <span className="text-sm font-semibold text-[var(--neu-text)]">
+                Office Coordinates
+              </span>
+              <button
+                type="button"
+                onClick={handleDetectLocation}
+                disabled={isDetecting}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--neu-accent)]/10 text-[var(--neu-accent)] hover:bg-[var(--neu-accent)]/20 text-xs font-semibold transition-colors cursor-pointer"
+              >
+                <Crosshair className={`w-3.5 h-3.5 ${isDetecting ? "animate-spin" : ""}`} />
+                {isDetecting ? "Detecting GPS..." : "📍 Detect My Current Location"}
+              </button>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--neu-text)] mb-2">
@@ -141,7 +181,7 @@ export default function AdminSettingsPage() {
                   onChange={(e) =>
                     setLocationSettings({ ...locationSettings, officeLat: parseFloat(e.target.value) || 0 })
                   }
-                  placeholder="e.g., 24.8607"
+                  placeholder="e.g., 26.9124"
                 />
                 <p className="text-xs text-[var(--neu-text-secondary)] mt-1">
                   Valid range: -90 to 90
@@ -161,7 +201,7 @@ export default function AdminSettingsPage() {
                   onChange={(e) =>
                     setLocationSettings({ ...locationSettings, officeLng: parseFloat(e.target.value) || 0 })
                   }
-                  placeholder="e.g., 67.0011"
+                  placeholder="e.g., 75.7873"
                 />
                 <p className="text-xs text-[var(--neu-text-secondary)] mt-1">
                   Valid range: -180 to 180
@@ -177,34 +217,35 @@ export default function AdminSettingsPage() {
               <NeuInput
                 type="number"
                 min="10"
-                max="5000"
+                max="10000"
                 value={locationSettings.radiusMeters}
                 onChange={(e) =>
-                  setLocationSettings({ ...locationSettings, radiusMeters: parseInt(e.target.value) || 100 })
+                  setLocationSettings({ ...locationSettings, radiusMeters: parseInt(e.target.value) || 500 })
                 }
               />
               <p className="text-xs text-[var(--neu-text-secondary)] mt-1">
-                Range: 10 to 5000 meters. Recommended: 100-200m for office buildings.
+                Range: 10 to 10,000 meters. (e.g. 500m covers office building and nearby parking).
               </p>
             </div>
 
             {/* Geofence Mode */}
-            <div className="flex items-center gap-4 p-4 bg-[var(--neu-bg)] rounded-lg">
+            <div className="flex items-center gap-4 p-4 bg-[var(--neu-bg)] rounded-lg border border-[var(--neu-border)]">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-[var(--neu-text)] mb-1">
-                  Geofence Mode
+                  Strict Geofence Enforcement
                 </label>
                 <p className="text-sm text-[var(--neu-text-secondary)]">
                   {locationSettings.strictGeofence
-                    ? "Strict mode requires employees to be within the radius"
-                    : "Lenient mode allows check-ins from anywhere"}
+                    ? "Strict Mode ON: Employees MUST be inside office radius to check in (blocked if outside or GPS disabled)."
+                    : "Lenient Mode (Recommended): Employees can check in from anywhere. Out-of-office check-ins are tagged for review."}
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <span className={`text-sm ${!locationSettings.strictGeofence ? "font-medium" : ""}`}>
+                <span className={`text-sm ${!locationSettings.strictGeofence ? "font-bold text-[var(--neu-text)]" : "text-gray-400"}`}>
                   Lenient
                 </span>
                 <button
+                  type="button"
                   onClick={() =>
                     setLocationSettings({
                       ...locationSettings,
@@ -212,18 +253,18 @@ export default function AdminSettingsPage() {
                     })
                   }
                   className={`
-                    relative w-14 h-7 rounded-full transition-colors duration-200
-                    ${locationSettings.strictGeofence ? "bg-green-500" : "bg-gray-300"}
+                    relative w-14 h-7 rounded-full transition-colors duration-200 cursor-pointer
+                    ${locationSettings.strictGeofence ? "bg-emerald-600" : "bg-gray-300"}
                   `}
                 >
                   <span
                     className={`
-                      absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform duration-200
+                      absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 shadow-sm
                       ${locationSettings.strictGeofence ? "translate-x-7" : "translate-x-0"}
                     `}
                   />
                 </button>
-                <span className={`text-sm ${locationSettings.strictGeofence ? "font-medium text-green-600" : ""}`}>
+                <span className={`text-sm ${locationSettings.strictGeofence ? "font-bold text-emerald-600" : "text-gray-400"}`}>
                   Strict
                 </span>
               </div>

@@ -18,11 +18,11 @@ export function haversineDistance(
   return R * c;
 }
 
-// Default office location settings (can be overridden via env or DB)
+// Default office location settings
 export const DEFAULT_SETTINGS = {
-  officeLat: parseFloat(process.env.OFFICE_LAT || "24.8607"),
-  officeLng: parseFloat(process.env.OFFICE_LNG || "67.0011"),
-  radiusMeters: parseInt(process.env.OFFICE_RADIUS_METERS || "100"),
+  officeLat: parseFloat(process.env.OFFICE_LAT || "26.9124"),
+  officeLng: parseFloat(process.env.OFFICE_LNG || "75.7873"),
+  radiusMeters: parseInt(process.env.OFFICE_RADIUS_METERS || "500"),
   strictGeofence: process.env.STRICT_GEOFENCE === "true",
 };
 

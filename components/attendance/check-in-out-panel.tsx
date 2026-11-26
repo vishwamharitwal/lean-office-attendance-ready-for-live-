@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Clock, LogIn, LogOut, CheckCircle } from "lucide-react";
+import { Clock, LogIn, LogOut, CheckCircle, MapPin, MapPinOff, AlertCircle } from "lucide-react";
 import { ChipLoader } from "@/components/ui/chip-loader";
 import { NeuCard, NeuCardContent } from "@/components/ui/neu-card";
 import { NeuButton } from "@/components/ui/neu-button";
@@ -14,6 +14,8 @@ interface TodayRecord {
   checkOut: string | null;
   status: "present" | "absent" | "late";
   hoursWorked: number;
+  outOfOffice?: boolean;
+  location?: { lat: number | null; lng: number | null };
 }
 
 function formatTime(date: Date): string {
@@ -49,6 +51,12 @@ export default function CheckInOutPanel() {
   const [loading, setLoading] = React.useState(false);
   const [initialLoading, setInitialLoading] = React.useState(true);
 
+  // GPS Location state & toggle
+  const [enableLocation, setEnableLocation] = React.useState<boolean>(true);
+  const [locStatus, setLocStatus] = React.useState<string | null>(null);
+  const [coords, setCoords] = React.useState<{ lat: number; lng: number } | null>(null);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
   React.useEffect(() => {
     setCurrentTime(new Date());
     const timer = setInterval(() => {
@@ -61,6 +69,26 @@ export default function CheckInOutPanel() {
   React.useEffect(() => {
     fetchTodayRecord();
   }, []);
+
+  // Try to acquire position in advance if location is enabled
+  React.useEffect(() => {
+    if (enableLocation && typeof window !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setLocStatus(`GPS Acquired (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
+        },
+        (err) => {
+          console.warn("Location permission or signal:", err.message);
+          setLocStatus("GPS permission not granted yet");
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+      );
+    } else {
+      setCoords(null);
+      setLocStatus(null);
+    }
+  }, [enableLocation]);
 
   const fetchTodayRecord = async () => {
     try {
@@ -83,12 +111,44 @@ export default function CheckInOutPanel() {
     }
   };
 
+  const getExactLocation = (): Promise<{ lat: number; lng: number } | null> => {
+    if (!enableLocation || typeof window === "undefined" || !navigator.geolocation) {
+      return Promise.resolve(null);
+    }
+
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setCoords(loc);
+          resolve(loc);
+        },
+        (err) => {
+          console.warn("Could not retrieve exact location at check-in:", err.message);
+          resolve(coords); // Fallback to pre-acquired coords if available
+        },
+        { enableHighAccuracy: true, timeout: 7000 }
+      );
+    });
+  };
+
   const handleCheckIn = async () => {
     setLoading(true);
+    setErrorMessage(null);
     try {
+      let payload: { lat?: number; lng?: number } = {};
+
+      if (enableLocation) {
+        const liveCoords = await getExactLocation();
+        if (liveCoords) {
+          payload = { lat: liveCoords.lat, lng: liveCoords.lng };
+        }
+      }
+
       const response = await fetch("/api/attendance/check-in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -96,11 +156,11 @@ export default function CheckInOutPanel() {
       if (data.success) {
         await fetchTodayRecord();
       } else {
-        alert(data.error || "Failed to check in");
+        setErrorMessage(data.error || "Failed to check in");
       }
     } catch (error) {
       console.error("Check-in error:", error);
-      alert("Failed to check in");
+      setErrorMessage("Failed to check in. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -108,6 +168,7 @@ export default function CheckInOutPanel() {
 
   const handleCheckOut = async () => {
     setLoading(true);
+    setErrorMessage(null);
     try {
       const response = await fetch("/api/attendance/check-out", {
         method: "POST",
@@ -119,11 +180,11 @@ export default function CheckInOutPanel() {
       if (data.success) {
         await fetchTodayRecord();
       } else {
-        alert(data.error || "Failed to check out");
+        setErrorMessage(data.error || "Failed to check out");
       }
     } catch (error) {
       console.error("Check-out error:", error);
-      alert("Failed to check out");
+      setErrorMessage("Failed to check out. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -183,7 +244,65 @@ export default function CheckInOutPanel() {
                   : "Checked In"}
               </NeuBadge>
             )}
+            {isCheckedIn && todayRecord.location?.lat && (
+              <NeuBadge variant={todayRecord.outOfOffice ? "warning" : "success"}>
+                {todayRecord.outOfOffice ? "Out of Office" : "In Office"}
+              </NeuBadge>
+            )}
           </div>
+
+          {/* Location Toggle (Visible before check-in) */}
+          {!isCheckedIn && !initialLoading && (
+            <div className="w-full max-w-md p-4 rounded-xl bg-[var(--neu-bg)] border border-[var(--neu-border)] flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${enableLocation ? "bg-[var(--neu-accent)]/10 text-[var(--neu-accent)]" : "bg-gray-100 text-gray-400"}`}>
+                  {enableLocation ? <MapPin className="w-5 h-5" /> : <MapPinOff className="w-5 h-5" />}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-[var(--neu-text)]">
+                      GPS Location Check
+                    </span>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${enableLocation ? "bg-emerald-100 text-emerald-700" : "bg-gray-200 text-gray-600"}`}>
+                      {enableLocation ? "ENABLED" : "OFF"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--neu-text-secondary)] mt-0.5">
+                    {enableLocation
+                      ? locStatus || "Will capture your office coordinates on check-in"
+                      : "Location disabled — check in freely without GPS"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Toggle Switch */}
+              <button
+                type="button"
+                onClick={() => setEnableLocation(!enableLocation)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none ${
+                  enableLocation ? "bg-[var(--neu-accent)]" : "bg-gray-300"
+                }`}
+                title={enableLocation ? "Disable GPS" : "Enable GPS"}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out mt-0.5 ml-0.5 ${
+                    enableLocation ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+          )}
+
+          {/* Error Banner */}
+          {errorMessage && (
+            <div className="w-full max-w-md p-3.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-2.5">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-semibold">Check-in Alert</p>
+                <p className="text-xs mt-0.5">{errorMessage}</p>
+              </div>
+            </div>
+          )}
 
           {/* Action Button */}
           {initialLoading ? (

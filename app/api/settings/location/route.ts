@@ -5,17 +5,19 @@ import connectDB from "@/lib/db";
 import { requireAdmin } from "@/lib/middleware-helpers";
 import { ApiResponse, LocationSettingsBody } from "@/types";
 import { DEFAULT_SETTINGS } from "@/lib/geolocation";
-
-// In-memory cache for settings (in production, use Redis or DB)
-let cachedSettings = { ...DEFAULT_SETTINGS };
+import Setting from "@/models/Setting";
 
 // GET /api/settings/location - Get current location settings
 export async function GET(): Promise<NextResponse<ApiResponse<unknown>>> {
   try {
+    await connectDB();
+    const doc = await Setting.findOne({ key: "location" });
+    const settings = doc?.value || DEFAULT_SETTINGS;
+
     return NextResponse.json(
       {
         success: true,
-        data: cachedSettings,
+        data: settings,
       },
       { status: 200 }
     );
@@ -43,6 +45,7 @@ export async function POST(
       return authResult;
     }
 
+    await connectDB();
     const body: LocationSettingsBody = await request.json();
 
     // Validate required fields
@@ -85,30 +88,35 @@ export async function POST(
       );
     }
 
-    if (body.radiusMeters < 10 || body.radiusMeters > 5000) {
+    if (body.radiusMeters < 10 || body.radiusMeters > 10000) {
       return NextResponse.json(
         {
           success: false,
-          error: "Radius must be between 10 and 5000 meters",
+          error: "Radius must be between 10 and 10000 meters",
           code: "VALIDATION_ERROR",
         },
         { status: 400 }
       );
     }
 
-    // Update cached settings
-    cachedSettings = {
+    const newSettings = {
       officeLat: body.officeLat,
       officeLng: body.officeLng,
       radiusMeters: body.radiusMeters,
       strictGeofence: body.strictGeofence,
     };
 
+    await Setting.findOneAndUpdate(
+      { key: "location" },
+      { value: newSettings },
+      { upsert: true, new: true }
+    );
+
     return NextResponse.json(
       {
         success: true,
-        data: cachedSettings,
-        message: "Location settings updated successfully",
+        data: newSettings,
+        message: "Location settings saved successfully",
       },
       { status: 200 }
     );
