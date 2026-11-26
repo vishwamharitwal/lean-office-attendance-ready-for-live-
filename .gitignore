@@ -47,6 +47,11 @@ yarn-error.log*
 .agents/rules/
 AGENT.md
 
+# agent & skill folders
+skills/
+ui-ux-pro-max-skill/
+skills-lock.json
+
 # vercel
 .vercel
 
