@@ -15,10 +15,10 @@ interface AnimatedBackgroundProps {
 }
 
 export function AnimatedBackground({
-  color = "#818cf8",
-  particleCount = 600,
-  speed = 0.8,
-  trailOpacity = 0.15,
+  color = "#c7d2fe",
+  particleCount = 200,
+  speed = 0.5,
+  trailOpacity = 0.04,
 }: AnimatedBackgroundProps) {
   return (
     <div className="fixed inset-0 z-0">

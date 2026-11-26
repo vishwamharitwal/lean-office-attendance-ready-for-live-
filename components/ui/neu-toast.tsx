@@ -161,7 +161,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onClose }) => {
         "border-l-4",
         styles.border,
         "rounded-[var(--neu-radius)]",
-        "shadow-[8px_8px_16px_var(--neu-shadow-dark),-8px_-8px_16px_var(--neu-shadow-light)]",
+        "shadow-lg",
         "animate-in slide-in-from-right-5 fade-in duration-300"
       )}
       role="alert"
@@ -234,7 +234,7 @@ const NeuToast: React.FC<NeuToastProps> = ({ message, type, onClose }) => {
         "border-l-4",
         styles.border,
         "rounded-[var(--neu-radius)]",
-        "shadow-[8px_8px_16px_var(--neu-shadow-dark),-8px_-8px_16px_var(--neu-shadow-light)]",
+        "shadow-lg",
         "animate-in slide-in-from-right-5 fade-in duration-300"
       )}
       role="alert"

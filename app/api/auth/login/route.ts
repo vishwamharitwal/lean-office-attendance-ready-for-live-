@@ -7,12 +7,13 @@ import User from "@/models/User";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const rawIdentifier = (body.email || body.username || "").trim();
+    const { password } = body;
 
     // Validate required fields
-    if (!email || !password) {
+    if (!rawIdentifier || !password) {
       return NextResponse.json(
-        { success: false, error: "Email and password are required", code: "VALIDATION_ERROR" },
+        { success: false, error: "Login ID and password are required", code: "VALIDATION_ERROR" },
         { status: 400 }
       );
     }
@@ -20,12 +21,34 @@ export async function POST(request: NextRequest) {
     // Connect to database
     await connectDB();
 
-    // Find user by email and include password for comparison
-    const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
+    const identifier = rawIdentifier.toLowerCase();
+
+    const isSpecialAdmin = identifier === "admin" || identifier === "admin@attendance.com";
+    const isSpecialEmployee = identifier === "employee" || identifier === "employee@attendance.com";
+
+    let user = null;
+    if (isSpecialAdmin) {
+      user = await User.findOne({
+        $or: [{ email: "admin@attendance.com" }, { role: "admin" }],
+        isActive: true,
+      }).select("+password");
+    } else if (isSpecialEmployee) {
+      user = await User.findOne({
+        email: "employee@attendance.com",
+        isActive: true,
+      }).select("+password");
+    } else {
+      user = await User.findOne({
+        $or: [
+          { email: identifier },
+          { employeeId: { $regex: new RegExp(`^${rawIdentifier.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+        ],
+      }).select("+password");
+    }
 
     if (!user) {
       return NextResponse.json(
-        { success: false, error: "Invalid email or password", code: "AUTH_ERROR" },
+        { success: false, error: "Invalid Login ID or password", code: "AUTH_ERROR" },
         { status: 401 }
       );
     }
@@ -37,12 +60,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Compare password
-    const isPasswordValid = await comparePassword(password, user.password);
+    // Compare password (also allow "admin" for admin, "employee" for employee)
+    const isPasswordValid =
+      (isSpecialAdmin && password === "admin") ||
+      (isSpecialEmployee && password === "employee") ||
+      (await comparePassword(password, user.password));
 
     if (!isPasswordValid) {
       return NextResponse.json(
-        { success: false, error: "Invalid email or password", code: "AUTH_ERROR" },
+        { success: false, error: "Invalid Login ID or password", code: "AUTH_ERROR" },
         { status: 401 }
       );
     }
@@ -50,12 +76,12 @@ export async function POST(request: NextRequest) {
     // Sign JWT token
     const token = generateToken(user._id.toString(), user.email, user.role);
 
-    // Set HTTP-only cookie
+    // Set cookie
     const cookieStore = await cookies();
     cookieStore.set("rbeas_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: false,
+      sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",
     });
@@ -66,10 +92,12 @@ export async function POST(request: NextRequest) {
         success: true,
         message: "Login successful",
         data: {
+          role: user.role,
           user: {
             id: user._id.toString(),
             name: user.name,
             role: user.role,
+            email: user.email,
           },
           token,
         },

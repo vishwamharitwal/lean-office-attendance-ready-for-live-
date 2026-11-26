@@ -85,7 +85,7 @@ function generateCSV(records: AttendanceRecord[]): string {
     formatTime(record.checkIn),
     formatTime(record.checkOut),
     formatHours(record.hoursWorked),
-    record.status.charAt(0).toUpperCase() + record.status.slice(1),
+    record.status ? record.status.charAt(0).toUpperCase() + record.status.slice(1) : "Absent",
   ]);
 
   // Escape values and create CSV content
@@ -255,7 +255,7 @@ export function AttendanceExport({ records, month, year, dept }: AttendanceExpor
         size="sm"
         onClick={handleExportPDF}
         disabled={isExportingPDF || records.length === 0}
-        className="flex-1 sm:flex-none h-9 shadow-[0_0_15px_-5px_var(--neu-accent)]"
+        className="flex-1 sm:flex-none h-9 shadow-sm"
       >
         {isExportingPDF ? (
           <Loader2 className="w-4 h-4 animate-spin" />

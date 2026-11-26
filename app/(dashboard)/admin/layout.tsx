@@ -13,7 +13,7 @@ export default function AdminLayout({
   const { isAdminCollapsed: isCollapsed } = useSidebar();
 
   return (
-    <div className="flex min-h-screen bg-transparent relative z-10">
+    <div className="flex min-h-screen bg-[#f8fafc] relative z-10">
       <AdminSidebar />
       <div 
         className={cn(

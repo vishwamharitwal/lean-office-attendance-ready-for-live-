@@ -61,7 +61,7 @@ export function AdminSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-screen bg-[var(--neu-bg)]/90 backdrop-blur-md border-r border-[var(--neu-border)] z-40 transition-all duration-300",
+          "fixed left-0 top-0 h-screen bg-[var(--neu-surface)] border-r border-[var(--neu-border)] z-40 transition-all duration-300 shadow-sm",
           isCollapsed ? "w-20" : "w-64",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}

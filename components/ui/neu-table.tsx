@@ -15,9 +15,9 @@ const NeuTable = React.forwardRef<HTMLTableElement, NeuTableProps>(
           ref={ref}
           className={cn(
             "w-full border-collapse",
-            "bg-[var(--neu-surface)]",
-            "border border-[var(--neu-border)]",
-            "shadow-[8px_8px_16px_var(--neu-shadow-dark),-8px_-8px_16px_var(--neu-shadow-light)]",
+            "bg-white",
+            "border border-slate-200/80",
+            "shadow-sm",
             className
           )}
           {...props}

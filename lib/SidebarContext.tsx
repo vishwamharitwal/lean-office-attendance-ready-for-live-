@@ -12,25 +12,31 @@ interface SidebarContextType {
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [isAdminCollapsed, setIsAdminCollapsed] = useState(false);
-  const [isEmployeeCollapsed, setIsEmployeeCollapsed] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const admin = localStorage.getItem("adminSidebarCollapsed") === "true";
-    const employee = localStorage.getItem("employeeSidebarCollapsed") === "true";
-    setIsAdminCollapsed(admin);
-    setIsEmployeeCollapsed(employee);
-  }, []);
+  const [isAdminCollapsed, setIsAdminCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("adminSidebarCollapsed") === "true";
+    }
+    return false;
+  });
+  const [isEmployeeCollapsed, setIsEmployeeCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("employeeSidebarCollapsed") === "true";
+    }
+    return false;
+  });
 
   const setAdmin = (val: boolean) => {
     setIsAdminCollapsed(val);
-    localStorage.setItem("adminSidebarCollapsed", String(val));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("adminSidebarCollapsed", String(val));
+    }
   };
 
   const setEmployee = (val: boolean) => {
     setIsEmployeeCollapsed(val);
-    localStorage.setItem("employeeSidebarCollapsed", String(val));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("employeeSidebarCollapsed", String(val));
+    }
   };
 
   return (

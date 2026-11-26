@@ -113,7 +113,7 @@ export function AttendanceTable({ records }: AttendanceTableProps) {
               <NeuTableCell>{formatHours(record.hoursWorked)}</NeuTableCell>
               <NeuTableCell>
                 <NeuBadge variant={getStatusBadgeVariant(record.status)}>
-                  {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                  {record.status ? record.status.charAt(0).toUpperCase() + record.status.slice(1) : "Absent"}
                 </NeuBadge>
               </NeuTableCell>
             </NeuTableRow>

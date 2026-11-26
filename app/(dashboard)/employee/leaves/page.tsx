@@ -169,24 +169,26 @@ export default function EmployeeLeavesPage() {
             <List2 
               items={leaves.map((leave) => ({
                 icon: <Calendar className="w-5 h-5 text-[var(--neu-accent)]" />,
-                title: leave.leaveType.toUpperCase(),
+                title: (leave.leaveType || (leave as unknown as { type?: string }).type || "GENERAL").toUpperCase(),
                 category: "LEAVE REQUEST",
                 description: (
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2 opacity-80">
                       <Clock className="w-3.5 h-3.5" />
-                      <span>{new Date(leave.startDate).toLocaleDateString()} - {new Date(leave.endDate).toLocaleDateString()}</span>
-                      <span className="font-bold text-[var(--neu-accent)]">({leave.totalDays} Days)</span>
+                      <span>
+                        {leave.startDate ? new Date(leave.startDate).toLocaleDateString() : "-"} - {leave.endDate ? new Date(leave.endDate).toLocaleDateString() : "-"}
+                      </span>
+                      <span className="font-bold text-[var(--neu-accent)]">({leave.totalDays || 1} Days)</span>
                     </div>
                     <div className="text-sm italic opacity-60 line-clamp-1">
-                      "{leave.reason}"
+                      &quot;{leave.reason || "No reason specified"}&quot;
                     </div>
                   </div>
                 ),
                 status: (
                   <div className="flex items-center gap-3">
-                    <NeuBadge variant={getStatusBadgeVariant(leave.status)}>
-                      {leave.status}
+                    <NeuBadge variant={getStatusBadgeVariant(leave.status || "pending")}>
+                      {leave.status || "pending"}
                     </NeuBadge>
                     {leave.status === "pending" && (
                       <NeuButton

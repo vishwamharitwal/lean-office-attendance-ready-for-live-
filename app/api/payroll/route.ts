@@ -177,7 +177,7 @@ export async function GET(
     const status = searchParams.get("status");
 
     // Build query
-    let query: Record<string, unknown> = {};
+    const query: Record<string, unknown> = {};
 
     if (month) query.month = month;
     if (year) query.year = year;

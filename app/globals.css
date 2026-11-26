@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #1a1a2e;
-  --foreground: #e2e8f0;
+  --background: #f8fafc;
+  --foreground: #0f172a;
 
-  /* Neumorphic Design System */
-  --neu-bg: #1a1a2e;
-  --neu-surface: #16213e;
-  --neu-surface-light: #1a2547;
-  --neu-accent: #818cf8;
-  --neu-accent-hover: #6366f1;
-  --neu-text: #e2e8f0;
-  --neu-text-secondary: #94a3b8;
-  --neu-text-muted: #64748b;
-  --neu-success: #34d399;
-  --neu-warning: #fbbf24;
-  --neu-danger: #f87171;
-  --neu-shadow-dark: #0d0d1a;
-  --neu-shadow-light: #272742;
-  --neu-border: rgba(255, 255, 255, 0.05);
+  /* Calm Neutral Design System */
+  --neu-bg: #f8fafc;
+  --neu-surface: #ffffff;
+  --neu-surface-light: #f1f5f9;
+  --neu-accent: #4f46e5;
+  --neu-accent-hover: #4338ca;
+  --neu-text: #0f172a;
+  --neu-text-secondary: #475569;
+  --neu-text-muted: #94a3b8;
+  --neu-success: #10b981;
+  --neu-warning: #f59e0b;
+  --neu-danger: #ef4444;
+  --neu-shadow-dark: rgba(0, 0, 0, 0.05);
+  --neu-shadow-light: transparent;
+  --neu-border: #e2e8f0;
   --neu-radius: 0.75rem;
 }
 
@@ -31,26 +31,26 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1a1a2e;
-    --foreground: #e2e8f0;
+    --background: #f8fafc;
+    --foreground: #0f172a;
   }
 }
 
-/* Neumorphic utility classes */
+/* Modern clean utility classes */
 .neu-shadow {
-  box-shadow: 8px 8px 16px var(--neu-shadow-dark), -8px -8px 16px var(--neu-shadow-light);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
 .neu-shadow-sm {
-  box-shadow: 4px 4px 8px var(--neu-shadow-dark), -4px -4px 8px var(--neu-shadow-light);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .neu-shadow-inset {
-  box-shadow: inset 4px 4px 8px var(--neu-shadow-dark), inset -4px -4px 8px var(--neu-shadow-light);
+  box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .neu-shadow-pressed {
-  box-shadow: inset 2px 2px 4px var(--neu-shadow-dark), inset -2px -2px 4px var(--neu-shadow-light);
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 }
 
 body {

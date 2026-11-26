@@ -187,6 +187,7 @@ export interface CreateEmployeeBody {
   name: string;
   email: string;
   password: string;
+  employeeId?: string;
   department?: string;
   shift?: string;
   salary?: number;
@@ -197,6 +198,7 @@ export interface UpdateEmployeeBody {
   name?: string;
   email?: string;
   password?: string;
+  employeeId?: string;
   department?: string;
   shift?: string;
   salary?: number;

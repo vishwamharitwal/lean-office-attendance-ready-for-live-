@@ -126,7 +126,7 @@ export default function AdminDashboardPage() {
       result = result.filter(
         (record) =>
           typeof record.userId === "object" &&
-          record.userId.name.toLowerCase().includes(searchLower)
+          Boolean(record.userId?.name?.toLowerCase().includes(searchLower))
       );
     }
 

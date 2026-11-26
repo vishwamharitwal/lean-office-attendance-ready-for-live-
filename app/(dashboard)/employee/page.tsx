@@ -235,7 +235,7 @@ export default function EmployeeDashboard() {
                 ),
                 status: (
                   <NeuBadge variant={record.status === "present" ? "success" : record.status === "late" ? "warning" : "error"}>
-                    {record.status.toUpperCase()}
+                    {(record.status || "present").toUpperCase()}
                   </NeuBadge>
                 )
               }))}

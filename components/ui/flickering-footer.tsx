@@ -3,7 +3,6 @@
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { ClassValue, clsx } from "clsx";
 import * as Color from "color-bits";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -138,8 +137,13 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
   const setupCanvas = useCallback(
     (canvas: HTMLCanvasElement, width: number, height: number) => {
       const dpr = window.devicePixelRatio || 1;
-      const canvasWidth = width * dpr;
-      const canvasHeight = height * dpr;
+      const canvasWidth = Math.floor(width * dpr);
+      const canvasHeight = Math.floor(height * dpr);
+
+      if (canvasWidth <= 0 || canvasHeight <= 0 || width <= 0 || height <= 0) {
+        return { cols: 0, rows: 0, squares: new Float32Array(0), dpr, maskData: undefined };
+      }
+
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
       canvas.style.width = `${width}px`;
@@ -160,7 +164,7 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       maskCanvas.height = canvasHeight;
       const maskCtx = maskCanvas.getContext("2d", { willReadFrequently: true });
 
-      if (maskCtx && text) {
+      if (maskCtx && text && canvasWidth > 0 && canvasHeight > 0) {
         maskCtx.save();
         maskCtx.scale(dpr, dpr);
         maskCtx.fillStyle = "white";
@@ -210,7 +214,7 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
 
     let lastTime = 0;
       const animate = (time: number) => {
-        if (!isInView) return;
+        if (!isInView || !gridParams || gridParams.cols === 0 || gridParams.rows === 0) return;
 
         const deltaTime = (time - lastTime) / 1000;
         lastTime = time;

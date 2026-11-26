@@ -34,6 +34,7 @@ interface Employee {
 }
 
 interface EmployeeFormData {
+  employeeId?: string;
   name: string;
   email: string;
   password: string;
@@ -78,6 +79,7 @@ const departmentOptions = [
 ];
 
 const emptyFormData: EmployeeFormData = {
+  employeeId: "",
   name: "",
   email: "",
   password: "",
@@ -140,8 +142,8 @@ export default function EmployeeManagementPage() {
     const query = searchQuery.toLowerCase();
     const filtered = employees.filter(
       (emp) =>
-        emp.name.toLowerCase().includes(query) ||
-        emp.email.toLowerCase().includes(query) ||
+        emp.name?.toLowerCase().includes(query) ||
+        emp.email?.toLowerCase().includes(query) ||
         emp.employeeId?.toLowerCase().includes(query) ||
         emp.department?.name?.toLowerCase().includes(query)
     );
@@ -210,6 +212,7 @@ export default function EmployeeManagementPage() {
         id: selectedEmployee._id,
         name: formData.name,
         email: formData.email,
+        employeeId: formData.employeeId,
         role: formData.role,
         department: formData.department,
       };
@@ -271,6 +274,7 @@ export default function EmployeeManagementPage() {
   const openEditDialog = (employee: Employee) => {
     setSelectedEmployee(employee);
     setFormData({
+      employeeId: employee.employeeId || "",
       name: employee.name,
       email: employee.email,
       password: "",
@@ -411,8 +415,8 @@ export default function EmployeeManagementPage() {
               items={filteredEmployees.map((employee) => ({
                 icon: <UserIcon className="w-5 h-5" />,
                 title: employee.name,
-                category: employee.role.toUpperCase(),
-                description: `${employee.department?.name || 'No Dept'} • ${employee.email}`,
+                category: `${employee.employeeId || "NO ID"} • ${(employee.role || "employee").toUpperCase()}`,
+                description: `${employee.department?.name || 'General'} • ${employee.email}`,
                 onClick: () => openEditDialog(employee),
                 status: (
                   <div className="flex items-center gap-2">
@@ -453,9 +457,15 @@ export default function EmployeeManagementPage() {
             error={formErrors.name}
           />
           <NeuInput
+            label="Employee ID / Login ID"
+            placeholder="e.g. EMP-001 (auto-generated if left blank)"
+            value={formData.employeeId || ""}
+            onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+          />
+          <NeuInput
             label="Email"
             type="email"
-            placeholder="Enter email address"
+            placeholder="e.g. employee@company.com"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             error={formErrors.email}
@@ -463,7 +473,7 @@ export default function EmployeeManagementPage() {
           <NeuInput
             label="Password"
             type="password"
-            placeholder="Enter password (min 6 characters)"
+            placeholder="Enter login password"
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             error={formErrors.password}
@@ -516,6 +526,12 @@ export default function EmployeeManagementPage() {
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             error={formErrors.name}
+          />
+          <NeuInput
+            label="Employee ID / Login ID"
+            placeholder="e.g. EMP-001"
+            value={formData.employeeId || ""}
+            onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
           />
           <NeuInput
             label="Email"

@@ -31,6 +31,22 @@ yarn-error.log*
 .pnpm-debug.log*
 
 
+# environment variables
+.env
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE & local agent state
+.jetro/
+.cursor/
+.windsurfrules
+.mcp.json
+.agents/rules/
+AGENT.md
+
 # vercel
 .vercel
 

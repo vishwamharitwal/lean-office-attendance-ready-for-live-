@@ -125,7 +125,7 @@ export default function EmployeePayslipPage() {
                     ? "bg-green-100 text-green-700" 
                     : "bg-yellow-100 text-yellow-700"
                 }`}>
-                  {selectedPayroll.status.toUpperCase()}
+                  {(selectedPayroll.status || "unpaid").toUpperCase()}
                 </span>
               </div>
             </div>

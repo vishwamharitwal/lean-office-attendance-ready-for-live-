@@ -82,12 +82,12 @@ const NeuStatCard = React.forwardRef<HTMLDivElement, NeuStatCardProps>(
       <div
         ref={ref}
         className={cn(
-          "p-6 rounded-[var(--neu-radius)]",
-          "bg-[var(--neu-surface)]",
-          "border border-[var(--neu-border)]",
-          "shadow-[8px_8px_16px_var(--neu-shadow-dark),-8px_-8px_16px_var(--neu-shadow-light)]",
+          "p-6 rounded-xl",
+          "bg-white",
+          "border border-slate-200/80",
+          "shadow-sm",
           "transition-all duration-200 ease-out",
-          "hover:-translate-y-1 hover:shadow-[10px_10px_20px_var(--neu-shadow-dark),-10px_-10px_20px_var(--neu-shadow-light)]",
+          "hover:-translate-y-0.5 hover:shadow-md",
           className
         )}
         {...props}

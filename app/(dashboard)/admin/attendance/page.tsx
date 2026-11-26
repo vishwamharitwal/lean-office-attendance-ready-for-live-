@@ -177,9 +177,9 @@ export default function AdminAttendancePage() {
     const matchesStatus = !filters.status || record.status === filters.status;
     const matchesSearch =
       !filters.search ||
-      record.userId.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-      record.userId.email.toLowerCase().includes(filters.search.toLowerCase()) ||
-      record.userId.employeeId?.toLowerCase().includes(filters.search.toLowerCase());
+      record.userId?.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      record.userId?.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      record.userId?.employeeId?.toLowerCase().includes(filters.search.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 

@@ -151,22 +151,24 @@ export default function AdminLeavesPage() {
               items={leaves.map((leave) => ({
                 icon: <UserIcon className="w-5 h-5" />,
                 title: leave.userId?.name || "Unknown Employee",
-                category: leave.leaveType.toUpperCase(),
+                category: (leave.leaveType || (leave as unknown as { type?: string }).type || "GENERAL").toUpperCase(),
                 description: (
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2 opacity-80">
                       <CalendarIcon className="w-4 h-4" />
-                      <span>{new Date(leave.startDate).toLocaleDateString()} - {new Date(leave.endDate).toLocaleDateString()}</span>
-                      <span className="font-bold text-[var(--neu-accent)]">({leave.totalDays} Days)</span>
+                      <span>
+                        {leave.startDate ? new Date(leave.startDate).toLocaleDateString() : "-"} - {leave.endDate ? new Date(leave.endDate).toLocaleDateString() : "-"}
+                      </span>
+                      <span className="font-bold text-[var(--neu-accent)]">({leave.totalDays || 1} Days)</span>
                     </div>
                     <div className="text-sm italic opacity-60 line-clamp-1">
-                      "{leave.reason}"
+                      &quot;{leave.reason || "No reason provided"}&quot;
                     </div>
                   </div>
                 ),
                 status: (
                   <div className="flex items-center gap-2">
-                    {getStatusBadge(leave.status)}
+                    {getStatusBadge(leave.status || "pending")}
                     {leave.status === "pending" && (
                       <div className="flex gap-1 ml-2">
                         <NeuButton

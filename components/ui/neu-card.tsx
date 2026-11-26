@@ -19,18 +19,17 @@ interface NeuCardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const variantStyles: Record<CardVariant, string> = {
   raised: `
-    bg-[var(--neu-surface)]
-    border border-[var(--neu-border)]
-    shadow-[8px_8px_16px_var(--neu-shadow-dark),-8px_-8px_16px_var(--neu-shadow-light)]
+    bg-white
+    border border-slate-200/80
+    shadow-sm
   `,
   flat: `
-    bg-[var(--neu-surface)]
-    border border-[var(--neu-border)]
+    bg-white
+    border border-slate-200/80
   `,
   inset: `
-    bg-[var(--neu-surface)]
-    border border-[var(--neu-border)]
-    shadow-[inset_4px_4px_8px_var(--neu-shadow-dark),inset_-4px_-4px_8px_var(--neu-shadow-light)]
+    bg-slate-50
+    border border-slate-200/80
   `,
 };
 
@@ -41,10 +40,10 @@ const NeuCard = React.forwardRef<HTMLDivElement, NeuCardProps>(
         <div
           ref={ref}
           className={cn(
-            "rounded-[var(--neu-radius)] p-6",
+            "rounded-xl p-6",
             "transition-all duration-200 ease-out",
             variantStyles[variant],
-            hover && "hover:-translate-y-1 hover:shadow-[10px_10px_20px_var(--neu-shadow-dark),-10px_-10px_20px_var(--neu-shadow-light)]",
+            hover && "hover:-translate-y-0.5 hover:shadow-md",
             className
           )}
           {...props}

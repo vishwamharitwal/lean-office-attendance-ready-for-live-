@@ -37,10 +37,11 @@ export function Header() {
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-      // Use window.location.href for a full page refresh to clear all React states and caches
-      window.location.href = "/login";
     } catch (error) {
       console.error("Logout failed", error);
+    } finally {
+      document.cookie = "rbeas_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      window.location.href = "/login";
     }
   };
 

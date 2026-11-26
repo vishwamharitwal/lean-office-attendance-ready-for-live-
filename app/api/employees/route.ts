@@ -144,8 +144,8 @@ export async function POST(
     // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Generate employee ID
-    const employeeId = await generateEmployeeId();
+    // Generate or use custom employee ID
+    const employeeId = (body.employeeId && body.employeeId.trim().toUpperCase()) || (await generateEmployeeId());
 
     // Process department - if it's a name, find or create the document
     let finalDepartmentId = null;
@@ -287,6 +287,7 @@ export async function PUT(
     if (name) user.name = name;
     if (email) user.email = email.toLowerCase();
     if (role) user.role = role;
+    if (body.employeeId) user.employeeId = body.employeeId.trim().toUpperCase();
     
     // Process department update
     if (department !== undefined) {

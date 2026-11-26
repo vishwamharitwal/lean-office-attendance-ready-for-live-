@@ -90,7 +90,7 @@ export function AttendanceFilters({ onFilter, initialFilters }: AttendanceFilter
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 items-end bg-white/5 p-4 rounded-xl border border-white/10">
+    <div className="flex flex-col lg:flex-row gap-4 items-end bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 w-full">
         {/* Month Picker */}
         <NeuInput
@@ -136,7 +136,7 @@ export function AttendanceFilters({ onFilter, initialFilters }: AttendanceFilter
 
       {/* Action Buttons */}
       <div className="flex gap-2 w-full lg:w-auto">
-        <NeuButton variant="accent" onClick={handleApply} className="flex-1 lg:flex-none h-11 px-8 shadow-[0_0_20px_-5px_var(--neu-accent)]">
+        <NeuButton variant="accent" onClick={handleApply} className="flex-1 lg:flex-none h-11 px-8 shadow-sm">
           Apply Filters
         </NeuButton>
         <NeuButton variant="ghost" onClick={handleReset} className="flex-1 lg:flex-none h-11">

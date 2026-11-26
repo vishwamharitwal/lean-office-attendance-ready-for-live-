@@ -178,8 +178,9 @@ export default function CheckInOutPanel() {
             </span>
             {isCheckedIn && (
               <NeuBadge variant={todayRecord.status}>
-                {todayRecord.status.charAt(0).toUpperCase() +
-                  todayRecord.status.slice(1)}
+                {todayRecord.status
+                  ? todayRecord.status.charAt(0).toUpperCase() + todayRecord.status.slice(1)
+                  : "Checked In"}
               </NeuBadge>
             )}
           </div>

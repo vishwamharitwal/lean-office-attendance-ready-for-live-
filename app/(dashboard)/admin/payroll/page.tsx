@@ -164,7 +164,7 @@ export default function AdminPayrollPage() {
                 status: (
                   <div className="flex items-center gap-2">
                     <NeuBadge variant={record.status === "finalized" ? "success" : "warning"}>
-                      {record.status.toUpperCase()}
+                      {(record.status || "draft").toUpperCase()}
                     </NeuBadge>
                     <div className="flex gap-1 ml-2">
                       {record.status === "draft" && (

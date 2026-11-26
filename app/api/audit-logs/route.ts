@@ -5,7 +5,7 @@ import AuditLog from "@/models/AuditLog";
 import { ApiResponse } from "@/types";
 
 // Helper to create audit log entry
-export async function createAuditLog(
+async function createAuditLog(
   performedBy: string,
   action: string,
   targetModel: string,
@@ -54,7 +54,7 @@ export async function GET(
     const limit = parseInt(searchParams.get("limit") || "20");
 
     // Build query
-    let query: Record<string, unknown> = {};
+    const query: Record<string, unknown> = {};
     if (action) query.action = action;
     if (targetModel) query.targetModel = targetModel;
 

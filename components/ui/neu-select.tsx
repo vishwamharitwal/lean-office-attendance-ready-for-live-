@@ -17,7 +17,8 @@ interface NeuSelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectEleme
 
 const NeuSelect = React.forwardRef<HTMLSelectElement, NeuSelectProps>(
   ({ className, label, error, options, placeholder, id, ...props }, ref) => {
-    const selectId = id || React.useId();
+    const generatedId = React.useId();
+    const selectId = id || generatedId;
 
     return (
       <div className="w-full">
@@ -34,15 +35,15 @@ const NeuSelect = React.forwardRef<HTMLSelectElement, NeuSelectProps>(
             ref={ref}
             id={selectId}
             className={cn(
-              "w-full px-4 py-2.5 rounded-[var(--neu-radius)]",
+              "w-full px-4 py-2.5 rounded-lg",
               "appearance-none cursor-pointer",
-              "bg-[var(--neu-surface)] text-[var(--neu-text)]",
-              "border border-[var(--neu-border)]",
-              "shadow-[inset_4px_4px_8px_var(--neu-shadow-dark),inset_-4px_-4px_8px_var(--neu-shadow-light)]",
+              "bg-white text-slate-800",
+              "border border-slate-200",
+              "shadow-sm",
               "transition-all duration-200 ease-out",
-              "focus:outline-none focus:border-[var(--neu-accent)] focus:shadow-[inset_4px_4px_8px_var(--neu-shadow-dark),inset_-4px_-4px_8px_var(--neu-shadow-light),0_0_0_3px_rgba(129,140,248,0.2)]",
+              "focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100",
               "disabled:opacity-50 disabled:cursor-not-allowed",
-              error && "border-[var(--neu-danger)] focus:border-[var(--neu-danger)] focus:shadow-[inset_4px_4px_8px_var(--neu-shadow-dark),inset_-4px_-4px_8px_var(--neu-shadow-light),0_0_0_3px_rgba(248,113,113,0.2)]",
+              error && "border-red-400 focus:border-red-500 focus:ring-red-100",
               className
             )}
             {...props}
