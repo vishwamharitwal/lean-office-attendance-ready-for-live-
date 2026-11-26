@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/middleware-helpers";
 import { sendEmail, emailTemplates } from "@/lib/email";
