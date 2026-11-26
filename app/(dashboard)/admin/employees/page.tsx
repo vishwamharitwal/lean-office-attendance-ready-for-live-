@@ -423,17 +423,20 @@ export default function EmployeeManagementPage() {
                     <NeuBadge variant={getRoleBadgeVariant(employee.role)}>
                       {employee.role}
                     </NeuBadge>
-                    <NeuButton
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteDialog(employee);
-                      }}
-                      className="h-8 w-8 text-[var(--neu-danger)] hover:bg-[var(--neu-danger)]/10"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </NeuButton>
+                    {employee.role !== "admin" && (
+                      <NeuButton
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openDeleteDialog(employee);
+                        }}
+                        className="h-8 w-8 text-[var(--neu-danger)] hover:bg-[var(--neu-danger)]/10"
+                        title="Delete Employee"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </NeuButton>
+                    )}
                   </div>
                 )
               }))}

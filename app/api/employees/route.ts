@@ -8,6 +8,9 @@ import User from "@/models/User";
 import Attendance from "@/models/Attendance";
 import Department from "@/models/Department";
 import Shift from "@/models/Shift";
+import Leave from "@/models/Leave";
+import Payroll from "@/models/Payroll";
+import Notification from "@/models/Notification";
 import mongoose from "mongoose";
 import { ApiResponse, CreateEmployeeBody } from "@/types";
 
@@ -58,6 +61,8 @@ export async function GET(
     
     if (status) {
       query.isActive = status === "active";
+    } else {
+      query.isActive = { $ne: false };
     }
 
     // Calculate skip
@@ -419,14 +424,30 @@ export async function DELETE(
       );
     }
 
-    // Soft delete - set isActive to false
-    user.isActive = false;
-    await user.save();
+    if (user.role === "admin") {
+      return NextResponse.json<ApiResponse<never>>(
+        {
+          success: false,
+          error: "Admin account cannot be deleted",
+          code: "FORBIDDEN",
+        },
+        { status: 403 }
+      );
+    }
+
+    // Permanently delete user and cascade all associated records
+    await Promise.all([
+      User.findByIdAndDelete(id),
+      Attendance.deleteMany({ userId: id }),
+      Leave.deleteMany({ userId: id }),
+      Payroll.deleteMany({ userId: id }),
+      Notification.deleteMany({ userId: id }),
+    ]);
 
     return NextResponse.json<ApiResponse<null>>(
       {
         success: true,
-        message: "Employee deactivated successfully",
+        message: "Employee deleted permanently",
         data: null,
       },
       { status: 200 }
