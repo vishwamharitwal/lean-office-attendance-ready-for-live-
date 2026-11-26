@@ -11,7 +11,7 @@
 The system automates the entire HR workflow: employees clock in via GPS-validated check-ins, request leaves, and download payslips — all from their browser or mobile device. Admins get a comprehensive dashboard with attendance overrides, payroll generation, detailed analytics, and a complete audit trail.
 
 **Live URL:** [employee-attendance-pi.vercel.app](https://employee-attendance-pi.vercel.app)  
-**Repository:** [github.com/Konete326/Employee-Attendance](https://github.com/Konete326/Employee-Attendance)
+**Repository:** [github.com/vishwamharitwal/lean-office-attendance-ready-for-live-](https://github.com/vishwamharitwal/lean-office-attendance-ready-for-live-)
 
 ---
 
@@ -211,8 +211,8 @@ AttendEase uses a fully custom **Neumorphic design system** built with CSS custo
 
 ```bash
 # Clone and install
-git clone https://github.com/Konete326/Employee-Attendance.git
-cd Employee-Attendance
+git clone https://github.com/vishwamharitwal/lean-office-attendance-ready-for-live-.git
+cd lean-office-attendance-ready-for-live-
 npm install
 
 # Set environment variables
